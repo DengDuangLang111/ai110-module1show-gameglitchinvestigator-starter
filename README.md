@@ -25,13 +25,27 @@ It wrote the code, ran away, and now the game is unplayable.
 
 ## 📝 Document Your Experience
 
-- [ ] Describe the game's purpose.
-- [ ] Detail which bugs you found.
-- [ ] Explain what fixes you applied.
+### Game Purpose
+A number guessing game built with Streamlit. The player selects a difficulty (Easy: 1–20, Normal: 1–100, Hard: 1–50), then guesses the secret number within a limited number of attempts. Each guess receives a "Go Higher" or "Go Lower" hint, and a score is tracked across guesses.
+
+### Bugs Found and Fixed
+
+| # | Bug | Root Cause | Fix |
+|---|-----|-----------|-----|
+| 1 | Hints always said "Go Lower" regardless of guess | `secret` was cast to a `str` on even-numbered attempts, causing lexicographic comparison instead of numeric | Always pass `secret` as an integer to `check_guess` |
+| 2 | New game after losing was unplayable | `st.session_state.status` was never reset to `"playing"` on new game, so `st.stop()` blocked all input | Reset `status`, `history`, and `game_count` in the new game handler |
+| 3 | Input field kept the previous round's guess | Text input `key` never changed between games | Added `game_count` to the input key so Streamlit renders a fresh widget each new game |
+| 4 | Attempts display showed "1 left" while game-over fired | `st.info` rendered at the top before the submit handler incremented `attempts` | Replaced `st.info` with `st.empty()` placeholder; updated it after the increment |
+| 5 | Out-of-range numbers produced no feedback | No range validation — numbers outside `[low, high]` passed silently to `check_guess` | Added an `elif` range check after `parse_guess` that shows an error message |
+| 6 | Higher/Lower hints were reversed | `guess > secret` returned "Go HIGHER!" instead of "Go LOWER!" | Swapped the two return messages in `check_guess` |
+| 7 | Hard and Easy mode secrets could exceed their range | New game handler hardcoded `random.randint(1, 100)` regardless of difficulty | Changed to `random.randint(low, high)` using the difficulty range |
 
 ## 📸 Demo
 
 - [ ] [Insert a screenshot of your fixed, winning game here]
+![alt text](image.png)
+![alt text](image-1.png)
+
 
 ## 🚀 Stretch Features
 
